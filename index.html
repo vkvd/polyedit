@@ -1,0 +1,170 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Polyedit by vkvd</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Polyedit</h1>
+        <p>2d lowpoly editor based on http://raincomplex.net/lowpolyeditor/</p>
+
+        <p class="view"><a href="https://github.com/vkvd/polyedit">View the Project on GitHub <small>vkvd/polyedit</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/vkvd/polyedit/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/vkvd/polyedit/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/vkvd/polyedit">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="polyedit" class="anchor" href="#polyedit" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>polyedit</h1>
+
+<h3>
+<a id="2d-lowpoly-editor-heavily-based-on-this-one" class="anchor" href="#2d-lowpoly-editor-heavily-based-on-this-one" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>2D lowpoly editor heavily based on <a href="raincomplex.net/lowpolyeditor">this one</a>
+</h3>
+
+<p><img src="Screenshots/screenshot.png" alt="Image"></p>
+
+<h3>
+<a id="download" class="anchor" href="#download" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Download</h3>
+
+<p><a href="https://github.com/vkvd/polyedit/releases/download/1.0/polyedit.exe">Direct link</a><br>
+<a href="https://github.com/vkvd/polyedit/releases/">Releases page</a></p>
+
+<h3>
+<a id="libraries" class="anchor" href="#libraries" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Libraries</h3>
+
+<p>This project uses:</p>
+
+<ul>
+<li><a href="http://www.sfml-dev.org/">SFML</a></li>
+<li><a href="https://sourceforge.net/projects/tinyfiledialogs/">Tiny File Dialogs</a></li>
+<li><a href="https://github.com/open-source-parsers/jsoncpp">jsoncpp</a></li>
+<li><a href="https://github.com/ocornut/imgui">imgui</a></li>
+<li><a href="https://github.com/Mischa-Alff/imgui-backends">SFML imgui backend</a></li>
+</ul>
+
+<h3>
+<a id="building" class="anchor" href="#building" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Building</h3>
+
+<p><strong>In VS2013/2015 (untested on anything else) the build must be set to "Release" instead of "Debug".</strong></p>
+
+<p>The project looks for libraries to link against in the /include/ and /lib/ directories. Include and lib are in the repo for VS2013 - if you have any other compiler, drop the SFML and jsoncpp include directories in the project's include directories, and do the same for the lib, and it should compile; make sure to switch the dlls out as well. </p>
+
+<p>It has been tested on VS2013 and VS2015 - just switch out the libs/dlls for the corresponding ones for your compiler.</p>
+
+<h3>
+<a id="controls" class="anchor" href="#controls" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Controls</h3>
+
+<p>Controls are very similar to the editor it's based on, with a few changes.
+Panning works without a mouse.</p>
+
+<ul>
+<li>
+<strong>Mouse controls</strong>
+
+<ul>
+<li>Left click: Place point/select point</li>
+<li>Right click: Select polygon with center nearest to mouse</li>
+<li>Middle (scrollwheel) click: Pan camera</li>
+</ul>
+</li>
+<li>
+<strong>Keyboard controls</strong>
+
+<ul>
+<li>S: Save image </li>
+<li>
+<strong>Camera</strong>
+
+<ul>
+<li>LControl: Identical to middle mouse - pan camera while held</li>
+<li>Arrow keys: Move camera</li>
+<li>+/-: Zoom</li>
+</ul>
+</li>
+<li>
+<strong>Editor toggles</strong>
+
+<ul>
+<li>W: Wireframe mode, only show colored outlines</li>
+<li>H: Hide/show background image</li>
+<li>X: Hide/show polygon centers (useful for seeing density/distribution and easier selection)</li>
+<li>P: Hide/show polygon points</li>
+</ul>
+</li>
+<li>
+<strong>Selection tools</strong> 
+
+<ul>
+<li>Delete: Delete selection</li>
+<li>Space: Clear selection</li>
+<li>
+<strong>Coloring tools</strong>
+
+<ul>
+<li>A: Reaverage polygon color (useful for small changes that keep the same general color but add slight change)</li>
+<li>O: Change polygon color to color at mouse point</li>
+<li>C: Open color picker to select color</li>
+</ul>
+</li>
+<li>
+<strong>Overlapping</strong>
+
+<ul>
+<li>Comma: Send selection to back</li>
+<li>Period: Send selection to front</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+<p><strong>Antialiasing levels</strong> are supported, just launch the exe with a number after it for the AA level.  </p>
+
+<p>Example:<br>
+    polyedit 8
+for 8x AA.</p>
+
+<h3>
+<a id="platforms" class="anchor" href="#platforms" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Platforms</h3>
+
+<p>It <em>theoretically</em> should work on all platforms, however it's only been tested on windows.</p>
+
+<h3>
+<a id="notes" class="anchor" href="#notes" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Notes</h3>
+
+<p>Resizing is supported and should work but occasionally glitches.<br>
+Images are saved on exit.<br>
+Any point outside the boundary has the color of the closest in-image-boundary point - triangles made outside the image bounds should get correct colors.<br>
+Saving pushes all out-of-bounds points inbound.<br>
+The editor only recognizes the vertices file if it is in the same directory as the image with the same name.</p>
+
+<h3>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>License</h3>
+
+<p>MIT License.</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/vkvd">vkvd</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
