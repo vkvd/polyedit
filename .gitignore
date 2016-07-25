@@ -1,0 +1,17 @@
+*.ipch
+*.obj
+*.exe
+*.pdb
+*.ilk
+*.log
+*.tlog
+*.pch
+*.lastbuildstate
+*.suo
+*.sdf
+*.ibp
+*.pdb
+*.ini
+Debug/
+Release/
+build/

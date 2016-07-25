@@ -1,0 +1,92 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="engine.cpp" />
+    <ClCompile Include="point.cpp" />
+    <ClCompile Include="poly.cpp" />
+    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="tinyfiledialogs.c" />
+    <ClCompile Include="include\jsoncpp.cpp">
+      <Filter>json</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imguicolorpicker.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_demo.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+    <ClCompile Include="include\imgui\imgui_draw.cpp">
+      <Filter>imgui</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="engine.h" />
+    <ClInclude Include="point.h" />
+    <ClInclude Include="poly.h" />
+    <ClInclude Include="stdafx.h" />
+    <ClInclude Include="targetver.h" />
+    <ClInclude Include="tinyfiledialogs.h" />
+    <ClInclude Include="include\imgui-backends\SFML\imconfig-rendering-SFML.h">
+      <Filter>imgui-backends</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui-backends\SFML\imgui-events-SFML.h">
+      <Filter>imgui-backends</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui-backends\SFML\imgui-rendering-SFML.h">
+      <Filter>imgui-backends</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui-backends\SFML\imconfig-events-SFML.h">
+      <Filter>imgui-backends</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\imguicolorpicker.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\stb_rect_pack.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\stb_textedit.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\stb_truetype.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\imconfig.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\imgui.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+    <ClInclude Include="include\imgui\imgui_internal.h">
+      <Filter>imgui</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="imgui-backends">
+      <UniqueIdentifier>{82bf212a-0275-4a8a-bb16-6846cd65027a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="json">
+      <UniqueIdentifier>{8514420e-fcf7-412b-8380-72757a6f9734}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="imgui">
+      <UniqueIdentifier>{649a4534-8c71-4ef6-9bc6-05cde54eda67}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="include\imgui-backends\SFML\README.md">
+      <Filter>imgui-backends</Filter>
+    </None>
+    <None Include="include\imgui\LICENSE">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="include\imgui\README.md">
+      <Filter>imgui</Filter>
+    </None>
+    <None Include="include\imgui\.travis.yml">
+      <Filter>imgui</Filter>
+    </None>
+  </ItemGroup>
+</Project>
