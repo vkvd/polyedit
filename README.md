@@ -4,8 +4,8 @@
 ![Image](Screenshots/screenshot.png)
 
 ### Download
-[Direct link](https://github.com/shbaldw/polyedit/releases/download/1.0/polyedit.zip)  
-[Releases page](https://github.com/shbaldw/polyedit/releases/)
+[Direct link](https://github.com/vkvd/polyedit/releases/download/1.0/polyedit.exe)  
+[Releases page](https://github.com/vkvd/polyedit/releases/)
 
 ### Libraries
 This project uses:
