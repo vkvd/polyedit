@@ -5,6 +5,8 @@
 #include <stdio.h>
 #include <iostream>
 #include <fstream>
+#include "undoaction.h"
+
 class Engine {
 public:
 	Engine(int aaLevel);
@@ -26,6 +28,7 @@ public:
 	void onLeftClick(sf::Vector2f point);
 	void onRightClick(sf::Vector2f point);
 	void onMiddleClick(sf::Vector2f point);
+	void undo();
 	sf::Color chooseColor();
 	
 	void saveJSON();
@@ -115,5 +118,9 @@ public:
 	// GUI flags
 	bool showColorPickerGUI = false;
 	bool showSettingsGUI = false;
+
+	std::vector<UndoAction> undoBuffer;
+
+	template <size_t S> class Sizer { };
 };
 

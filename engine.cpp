@@ -41,6 +41,7 @@ float v2fdistance(sf::Vector2f a, sf::Vector2f b){
 // Constructor for the main engine.
 // Sets up renderwindow variables and loads an image.
 Engine::Engine(int aaLevel) {
+	std::cout << sizeof(undoBuffer)/1024;
 	BGColor = sf::Color(125, 125, 125, 255);
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = aaLevel;
@@ -256,6 +257,14 @@ void Engine::handleEvents(sf::Event event){
 		if (event.key.code == sf::Keyboard::A) {
             std::cout << "Re-averaging color in polygon (A) \n";
             if (spoly != NULL){
+				pR polyRecolor;
+				polyRecolor.polyColor = spoly->fillcolor;
+				for (int i = 0; i < polygons.size(); ++i) {
+					if (polygons[i].center == spoly->center) {
+						polyRecolor.polyIndex = i;
+					}
+				}
+				undoBuffer.push_back(UndoAction(polyRecolor));
                 spoly->fillcolor = sf::Color(avgClr(rpoints[spoly->rpointIndices[0]], rpoints[spoly->rpointIndices[1]], rpoints[spoly->rpointIndices[2]], 10));
             } else {
                 "Can't change color - no polygon selected (C) \n";
@@ -269,6 +278,16 @@ void Engine::handleEvents(sf::Event event){
                 point = windowToGlobalPos(point);
 				point = getClampedImgPoint(point);
                 sf::Color color = img.getPixel(point.x, point.y);
+
+				pR polyRecolor;
+				polyRecolor.polyColor = spoly->fillcolor;
+				for (int i = 0; i < polygons.size(); ++i) {
+					if (polygons[i].center == spoly->center) {
+						polyRecolor.polyIndex = i;
+					}
+				}
+				undoBuffer.push_back(UndoAction(polyRecolor));
+
                 spoly->fillcolor = color;
             } else {
                 "Can't change color - no polygon selected (C) \n";
@@ -299,6 +318,25 @@ void Engine::handleEvents(sf::Event event){
 				}
 				clearSelection();
 			}
+		}
+
+		//dbgPrint info
+		if (event.key.code == sf::Keyboard::BackSlash) {
+			std::cout << "=== Undo Buffer Dump ===" << std::endl;
+			std::cout << "=== Actions: " << undoBuffer.size() << " ===" << std::endl;
+			int index = 0;
+			for (auto e : undoBuffer) {
+				std::cout << "#" << index << " ";
+				e.print();
+				++index;
+			}
+		}
+		if (event.key.code == sf::Keyboard::Z) {
+			std::cout << "Undo\n";
+			undo();
+		}
+		if (event.key.code == sf::Keyboard::RBracket) {
+			undoBuffer.clear();
 		}
 	}
 
@@ -537,6 +575,7 @@ void Engine::clearSelection() {
 	spoly = NULL;
 	for (unsigned n = 0; n < rpoints.size(); n++) {
 		nspoints.push_back(&(rpoints[n]));
+		rpoints[n].selected = false;
 	}
 	for (unsigned i = 0; i < polygons.size(); i++) {
 		polygons[i].selected = false;
@@ -571,6 +610,7 @@ void Engine::deleteSelection() {
 			}
 			rpointsIndices.push_back(spointsin[i]);
 		}
+
 		// Sort vectors and erase duplicates
 		std::sort(polyIndices.begin(), polyIndices.end());
 		polyIndices.erase(std::unique(polyIndices.begin(), polyIndices.end()), polyIndices.end());
@@ -579,6 +619,25 @@ void Engine::deleteSelection() {
 		// Reverse indices for easier deletion of elements
 		std::reverse(rpointsIndices.begin(), rpointsIndices.end());
 		std::reverse(polyIndices.begin(), polyIndices.end());
+
+		// Get polys to re-add in deletion of a point
+		if (spointsin.size() > 0 && spoly == NULL) { // get deleted points
+			PD pointDeletion = PD();
+			for (int i : spointsin) {
+				pointDeletion.deletedPoints.push_back(std::make_pair(rpoints[i],i));
+			}
+			for (int i : polyIndices) {
+				pointDeletion.cPointColors.push_back(polygons[i].fillcolor);
+				auto arrayLoc = polygons[i].rpointIndices;
+				int p1 = arrayLoc[0];
+				int p2 = arrayLoc[1];
+				int p3 = arrayLoc[2];
+				std::cout << p1 << p2 << p3 << "\n";
+				pointDeletion.cPointPolysIndices.push_back(std::make_tuple(p1, p2, p3));
+			}
+			undoBuffer.push_back(UndoAction(pointDeletion));
+		}
+
 		for (unsigned i = 0; i < polyIndices.size(); i++) {
 			polygons.erase(polygons.begin() + polyIndices[i]);
 		}
@@ -626,7 +685,6 @@ void Engine::onLeftClick(sf::Vector2f point) {
 	}
 	// If its near another, snap to it -> shared edges
 	if (ispointnear) {
-		//spoint = &rpoints[nindex]; // spoint is used to get desired mouse position
 		sf::Vector2f mpos = getMPosFloat();
 		mpos = windowToGlobalPos(mpos);
 		// Init values for dragging, used above
@@ -658,6 +716,12 @@ void Engine::onLeftClick(sf::Vector2f point) {
 				polygons.push_back(pg);
 				int offset = polygons.size() - 1;
 				polygons[offset].fillcolor = avgClr(rpoints[polygons[offset].rpointIndices[0]], rpoints[polygons[offset].rpointIndices[1]], rpoints[polygons[offset].rpointIndices[2]], 10);
+				
+				// Add undo
+				pA polyAddition = pA();
+				polyAddition.polyIndex = offset;
+				undoBuffer.push_back(UndoAction(polyAddition));
+				
 				clearSelection();
 			}
 		}
@@ -666,6 +730,12 @@ void Engine::onLeftClick(sf::Vector2f point) {
 	if (!ispointnear) {
 		point = getClampedImgPoint(point);
 		rpoints.push_back(Point(point, 5));
+		
+		// Add undo
+		PA pointAddUndoAction = PA();
+		pointAddUndoAction.pointIndex = rpoints.size()-1;
+		undoBuffer.push_back(UndoAction(pointAddUndoAction));
+
 		spointsin.push_back(rpoints.size() - 1);
 		if (spointsin.size() == 3) {
 			int p1, p2, p3;
@@ -680,6 +750,12 @@ void Engine::onLeftClick(sf::Vector2f point) {
 			polygons.push_back(Poly(po1,po2,po3,p1,p2,p3,sf::Color::Green));
 			int offset = polygons.size() - 1;
 			polygons[offset].fillcolor = avgClr(rpoints[polygons[offset].rpointIndices[0]], rpoints[polygons[offset].rpointIndices[1]], rpoints[polygons[offset].rpointIndices[2]], 10);
+			
+			// Add undo
+			pA polyAddition = pA();
+			polyAddition.polyIndex = offset;
+			undoBuffer.push_back(UndoAction(polyAddition));
+
 			clearSelection();
 		}
 	}
@@ -719,6 +795,157 @@ void Engine::onMiddleClick(sf::Vector2f point) {
 	vdragflag = true;
 	vdragoffset = sf::Vector2f(0, 0);
 	vdraginitpt = point;
+}
+
+void Engine::undo() {
+	if (undoBuffer.size() > 0) {
+		UndoAction ua = undoBuffer.back();
+		undoBuffer.pop_back();
+
+		PA dPA;
+		PD dPD;
+		pD dpD;
+		pA dpA;
+		pR dpR;
+
+		switch (ua.action) {
+		// Simply delete the last added point
+		// Not exactly simple, as the delete function only runs off the current selection
+		// Hacky workaround for just deleting a point: select it, delete selection, clear
+		case Action::pointAddition:
+			dPA = ua.pointAddition;
+			clearSelection();
+			spoint = &rpoints[dPA.pointIndex];
+			spointsin.push_back(dPA.pointIndex);
+			deleteSelection();
+			// Manually deselect the last two points and pop the deletion action
+			undoBuffer.pop_back();
+			(&rpoints[dPA.pointIndex - 2])->selected = false;
+			(&rpoints[dPA.pointIndex - 3])->selected = false;
+			break;
+		case Action::pointDeletion:
+			// there's either going to be one or two points deleted
+			dPD = ua.pointDeletion;
+			clearSelection();
+			// Re-add the deleted points
+			for (auto& p : dPD.deletedPoints) {
+				rpoints.push_back(p.first);
+				std::cout << "Added point " << (rpoints.size()-1) << ";\n";
+				nspoints.push_back(&p.first);
+			}
+			// Reconstruct polygons that were caught in the point deletion
+			for (int index = 0; index < dPD.cPointPolysIndices.size(); ++index) {
+				// is dp2 active (were 2 points deleted)
+				bool dp2a = true;
+				// Polygon color
+				sf::Color pcolor = dPD.cPointColors[index];
+				// Indices of old deleted points
+				int dp1, dp2;
+				// Indices of the whole polygon deleted
+				int i1, i2, i3;
+				// Pointers to points of the new polygon
+				Point *p1, *p2, *p3;
+				// Offset to end of rpoints
+				int offset = rpoints.size() - 1;
+
+				// Get destroyed polygon indices (its in a tuple<int,int,int>)
+				i1 = std::get<0>(dPD.cPointPolysIndices[index]);
+				i2 = std::get<1>(dPD.cPointPolysIndices[index]);
+				i3 = std::get<2>(dPD.cPointPolysIndices[index]);
+
+				// Find if one or two points were deleted, set dp2a on results
+				dp1 = dPD.deletedPoints[0].second;
+				(dPD.deletedPoints.size() > 1) ? dp2 = dPD.deletedPoints[1].second : dp2a = false;
+
+				// Find which point in the deleted-by-consequence polygon was the deleted point
+				// and update a new polygon replacing the deleted point with the newly added point
+				int oi1, oi2, oi3;
+				oi1 = i1;
+				oi2 = i2;
+				oi3 = i3;
+				if (i1 > dp1) i1 -= 1;
+				if (i2 > dp1) i2 -= 1;
+				if (i3 > dp1) i3 -= 1;
+				if (dp2a) {
+					if (oi1 > dp2) i1 -= 1;
+					if (oi2 > dp2) i2 -= 1;
+					if (oi3 > dp2) i3 -= 1;
+				}
+				p1 = &rpoints[i1];
+				p2 = &rpoints[i2];
+				p3 = &rpoints[i3];
+				if (!dp2a) {
+					if (oi1 == dp1) {
+						p1 = &rpoints[offset];
+						i1 = offset;
+					}
+					else if (oi2 == dp1) {
+						p2 = &rpoints[offset];
+						i2 = offset;
+					}
+					else if (oi3 == dp1) {
+						p3 = &rpoints[offset];
+						i3 = offset;
+					}
+				}
+				if (dp2a) {
+					if (oi1 == dp1) {
+						p1 = &rpoints[offset - 1];
+						i1 = offset - 1;
+					}
+					else if (oi2 == dp1) {
+						p2 = &rpoints[offset - 1];
+						i2 = offset - 1;
+					}
+					else if (oi3 == dp1) {
+						p3 = &rpoints[offset - 1];
+						i3 = offset -1;
+					}
+					if (oi1 == dp2) {
+						p1 = &rpoints[offset];
+						i1 = offset;
+					}
+					else if (oi2 == dp2) {
+						p2 = &rpoints[offset];
+						i2 = offset;
+					}
+					else if (oi3 == dp2) {
+						p3 = &rpoints[offset];
+						i3 = offset;
+					}
+				}
+				std::cout << "New Points: " << i1 << i2 << i3 << '\n';
+				polygons.push_back(Poly(p1, p2, p3, i1, i2, i3, pcolor));
+			}
+			break;
+		// Select the polygon -> delete selection -> clear.
+		case Action::polyAddition:
+			dpA = ua.polyAddition;
+			clearSelection();
+			spoly = &polygons[dpA.polyIndex];
+			(&polygons[dpA.polyIndex])->selected = true;
+			deleteSelection();
+			break;
+		case Action::polyRecolor:
+			dpR = ua.polyRecolor;
+			polygons[dpR.polyIndex].fillcolor = dpR.polyColor;
+			break;
+		case Action::polyDeletion:
+			dpD = ua.polyDeletion;
+			Point *p1, *p2, *p3;
+			
+			int i1 = dpD.pointIndices[0];
+			int i2 = dpD.pointIndices[1];
+			int i3 = dpD.pointIndices[2];
+			p1 = &(rpoints[i1]);
+			p2 = &(rpoints[i2]);
+			p3 = &(rpoints[i3]);
+			polygons.push_back(Poly(p1, p2, p3, i1, i2, i3, dpD.polyColor));
+			break;
+		}
+
+		clearSelection();
+	}
 }
 
 /*/////////////////////////////////////////////////////////////////////////////
@@ -887,6 +1114,7 @@ void Engine::saveJSON(){
 	std::fstream vfilestrm;
 	vfilestrm.open(vfile, std::ios::out | std::ios::trunc);
 	vfilestrm << rootobj << std::endl;
+	vfilestrm.close();
 }
 
 // Loads the JSON into the engine variables.
@@ -948,4 +1176,5 @@ void Engine::loadJSON(){
 		pointSelectedColor = sf::Color(color);
 	}
 	std	::cout << "total polygons loaded: " << polygons.size() << "\n";
+	vfilestrm.close();
 }
