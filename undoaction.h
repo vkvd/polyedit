@@ -87,7 +87,7 @@ public:
 			std::cout << "\tColor: (" << polyRecolor.polyColor.toInteger() << ")\n";
 			break;
 		default:
-			std::cout << "invalid type: something went VERY wrong\n";
+			std::cout << "invalid type: something went VERY wrong, please save and restart\n";
 		}
 	}
 };

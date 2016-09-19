@@ -14,14 +14,15 @@
 #ifdef _WIN32
 #define strdup _strdup
 #define snprintf sprintf_s
-//#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup") // Don't open console with window
+// Comment this out if it causes issues, not totally sure of how it works
+#pragma comment(linker, "/SUBSYSTEM:windows /ENTRY:mainCRTStartup") // Don't open console with window
 #endif
 
 // The title of the window set in the constructor.
 #define WINDOWTITLE "Lowpoly Editor"
 // Starting window size.
-#define WINDOW_X 640
-#define WINDOW_Y 480
+#define WINDOW_X 1280
+#define WINDOW_Y 720
 // Fixed framerate set in the engine constructor.
 #define FRAMERATE 144
 // Range in pixels to snap to already existing points.
@@ -76,6 +77,8 @@ Engine::~Engine() {
 // and delegates update/draw as well.
 void Engine::run() {
 	ImGuiIO& io = ImGui::GetIO();
+	ImFontConfig imcfg;
+	//io.Fonts->Fonts[0]->Scale = 1.5f;
 	io.IniFilename = "polyedit_gui_config.ini";
 	while (window->isOpen()) {
 		sf::Event event;
@@ -115,19 +118,25 @@ void Engine::run() {
 			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8,8));
 			
 			ImGuiStyle& style = ImGui::GetStyle();
-			style.Colors[ImGuiCol_TitleBg] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
+			style.Colors[ImGuiCol_TitleBg] = ImVec4(0.39f, 0.39f, 0.39f, 0.75f);
 			style.Colors[ImGuiCol_TitleBgActive] = ImVec4(0.10f, 0.10f, 0.10f, 1.00f);
+			style.Colors[ImGuiCol_ScrollbarBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.60f);
+			style.Colors[ImGuiCol_ScrollbarGrab] = ImVec4(0.67f, 0.67f, 0.67f, 0.30f);
+			style.Colors[ImGuiCol_ScrollbarGrabHovered] = ImVec4(0.47f, 0.47f, 0.47f, 0.40f);
+			style.Colors[ImGuiCol_ScrollbarGrabActive] = ImVec4(1.00f, 0.98f, 0.99f, 0.40f);
 			style.Colors[ImGuiCol_Header] = ImVec4(0.00f, 0.00f, 0.00f, 0.51f);
 			style.Colors[ImGuiCol_HeaderHovered] = ImVec4(1.00f, 0.94f, 0.98f, 0.32f);
 			style.Colors[ImGuiCol_HeaderActive] = ImVec4(0.00f, 0.00f, 0.00f, 0.80f);
 
-			ImGui::PushStyleColor(ImGuiCol_TitleBg, ImVec4(105, 123, 151, 255));
+			style.ScrollbarRounding = 0.0f;
+			style.ScrollbarSize = 20.0f;
+
 			if (showColorPickerGUI){
 				createColorPickerGUI();
 			}
 			if (showSettingsGUI){
 				createSettingsGUI();
-				//ImGui::ShowStyleEditor();
+				ImGui::ShowStyleEditor();
 			}
 			if (showHelp) {
 				createHelpGUI();
@@ -702,7 +711,7 @@ void Engine::deleteSelection() {
 				int p1 = arrayLoc[0];
 				int p2 = arrayLoc[1];
 				int p3 = arrayLoc[2];
-				std::cout << p1 << p2 << p3 << "\n";
+				//std::cout << p1 << p2 << p3 << "\n";
 				pointDeletion.cPointPolysIndices.push_back(std::make_tuple(p1, p2, p3));
 			}
 			undoBuffer.push_back(UndoAction(pointDeletion));
@@ -900,7 +909,7 @@ void Engine::undo() {
 			// Re-add the deleted points
 			for (auto& p : dPD.deletedPoints) {
 				rpoints.push_back(p.first);
-				std::cout << "Added point " << (rpoints.size()-1) << ";\n";
+				//std::cout << "Added point " << (rpoints.size()-1) << ";\n";
 				nspoints.push_back(&p.first);
 			}
 			// Reconstruct polygons that were caught in the point deletion
@@ -984,7 +993,7 @@ void Engine::undo() {
 						i3 = offset;
 					}
 				}
-				std::cout << "New Points: " << i1 << i2 << i3 << '\n';
+				//std::cout << "New Points: " << i1 << i2 << i3 << '\n';
 				polygons.push_back(Poly(p1, p2, p3, i1, i2, i3, pcolor));
 			}
 			break;

@@ -12,7 +12,6 @@ public:
 	sf::Color colorSelected;
 	bool selected = false;
 	void updateCShape(float zoom);
-	void adjSizeToZoom(float zoom);
 	bool operator==(const Point& rhs);
 };
 
