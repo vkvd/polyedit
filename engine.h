@@ -29,7 +29,6 @@ public:
 	void onRightClick(sf::Vector2f point);
 	void onMiddleClick(sf::Vector2f point);
 	void undo();
-	sf::Color chooseColor();
 	
 	void saveJSON();
 	void loadJSON();
@@ -44,6 +43,7 @@ public:
 
 	void createColorPickerGUI();
 	void createSettingsGUI();
+	void createHelpGUI();
 	void handleGUItoggleEvent(sf::Event);
 	// Members
 	// -------------------------
@@ -118,6 +118,7 @@ public:
 	// GUI flags
 	bool showColorPickerGUI = false;
 	bool showSettingsGUI = false;
+	bool showHelp = false;
 
 	std::vector<UndoAction> undoBuffer;
 

@@ -41,17 +41,18 @@ float v2fdistance(sf::Vector2f a, sf::Vector2f b){
 // Constructor for the main engine.
 // Sets up renderwindow variables and loads an image.
 Engine::Engine(int aaLevel) {
-	std::cout << sizeof(undoBuffer)/1024;
 	BGColor = sf::Color(125, 125, 125, 255);
 	sf::ContextSettings settings;
 	settings.antialiasingLevel = aaLevel;
-	window = new sf::RenderWindow(sf::VideoMode(WINDOW_X, WINDOW_Y), WINDOWTITLE, sf::Style::Default,settings);
+	window = new sf::RenderWindow(sf::VideoMode(WINDOW_X, WINDOW_Y), WINDOWTITLE, sf::Style::Default, settings);
 	window->setFramerateLimit(FRAMERATE);
 	window->setVerticalSyncEnabled(false);
 	window->setKeyRepeatEnabled(false);
+	// Call load, get result
 	if (load() != 0){
 		std::exit(1);
 	}
+	// Set view standard and load the image
 	view.reset(sf::FloatRect(0, 0, WINDOW_X, WINDOW_Y));
 	window->setView(view);
 	drawimg.setTexture(image);
@@ -88,12 +89,17 @@ void Engine::run() {
 			// Handle events in relation to the GUI
 			handleGUItoggleEvent(event);
 			// If the GUI is open pass events to it and block left clicks for all GUIS
-			if (showColorPickerGUI || showSettingsGUI) {
+			if (showColorPickerGUI || showSettingsGUI || showHelp) {
 				ImGui::SFML::ProcessEvent(event);
 				if (!(event.type == sf::Event::MouseButtonPressed && event.mouseButton.button == sf::Mouse::Left)){
 					handleEvents(event);
 				}
 			}
+			/*// Actually do -> // Dont block left clicks with help open
+			if (showHelp) {
+				ImGui::SFML::ProcessEvent(event);
+				handleEvents(event);
+			}*/
 			// If the GUI is closed, run all events regardless
 			else {
 				handleEvents(event);
@@ -101,7 +107,7 @@ void Engine::run() {
 		}
 		window->clear(BGColor);
 		// If a GUI is up update them
-		if (showColorPickerGUI || showSettingsGUI) {
+		if (showColorPickerGUI || showSettingsGUI || showHelp) {
 			ImGui::SFML::UpdateImGui();
 			ImGui::SFML::UpdateImGuiRendering();
 
@@ -123,12 +129,15 @@ void Engine::run() {
 				createSettingsGUI();
 				//ImGui::ShowStyleEditor();
 			}
+			if (showHelp) {
+				createHelpGUI();
+			}
 		}
 		// Main loop
 		update();
 		draw();
 		// Render UI
-		if (showColorPickerGUI || showSettingsGUI) {
+		if (showColorPickerGUI || showSettingsGUI || showHelp) {
 			ImGui::Render();
 		}
 		window->display();
@@ -185,6 +194,9 @@ void Engine::handleGUItoggleEvent(sf::Event event) {
 	}
 	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::Escape) {
 		showSettingsGUI = !showSettingsGUI;
+	}
+	if (event.type == sf::Event::KeyPressed && event.key.code == sf::Keyboard::F1) {
+		showHelp = !showHelp;
 	}
 }
 
@@ -353,6 +365,11 @@ void Engine::handleEvents(sf::Event event){
 		sf::Vector2f point = windowToGlobalPos(click);
 		if (event.mouseButton.button == sf::Mouse::Left) {
 			onLeftClick(point);
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::R)) {
+				clearSelection();
+				onLeftClick(point);
+				deleteSelection();
+			}
 		}
 		if (event.mouseButton.button == sf::Mouse::Right){
 			onRightClick(point);
@@ -530,6 +547,59 @@ void Engine::createSettingsGUI(){
 			BGColor = sf::Color(bg[0] * 255.0f, bg[1] * 255.0f, bg[2] * 255.0f,255.0f);
 		}
 	}
+	ImGui::End();
+}
+
+void Engine::createHelpGUI() {
+	ImGui::Begin("Help");
+	ImGui::Text("Mouse:\n-----------------");
+	ImGui::Bullet(); ImGui::Text("Left click: Place or select point");
+	ImGui::Bullet(); ImGui::Text("Right click: Select polygon by nearest center");
+	ImGui::Bullet(); ImGui::Text("Middle click: Pan camera");
+	ImGui::Bullet(); ImGui::Text("Scroll: Zoom");
+	ImGui::NewLine();
+	ImGui::Text("Keyboard:\n-----------------");
+	ImGui::Bullet(); ImGui::Text("S: Save");
+	ImGui::Bullet(); ImGui::Text("Z: Undo");
+	ImGui::Bullet(); ImGui::Text("Delete: Delete selection");
+	ImGui::Bullet(); ImGui::Text("Space: Clear selection");
+	ImGui::Bullet(); ImGui::Text("Escape: Settings");
+
+	ImGui::Bullet(); ImGui::Text("Toggles");
+	ImGui::Indent();
+	ImGui::Bullet(); ImGui::Text("H: Hide background image");
+	ImGui::Bullet(); ImGui::Text("W: Wireframe mode");
+	ImGui::Bullet(); ImGui::Text("X: Show polygon centers");
+	ImGui::Bullet(); ImGui::Text("P: Hide points");
+	ImGui::Bullet(); ImGui::Text("Forward slash: Toggle image smoothing when zoomed in");
+	ImGui::Unindent();
+
+	ImGui::Bullet(); ImGui::Text("Recolors");
+	ImGui::Indent();
+	ImGui::Bullet(); ImGui::Text("A: Re-average color");
+	ImGui::Bullet(); ImGui::Text("C: Color Picker");
+	ImGui::Bullet(); ImGui::Text("O: Set polygon color to color at mouse cursor");
+	ImGui::Unindent();
+
+	ImGui::Bullet(); ImGui::Text("Layers");
+	ImGui::Indent();
+	ImGui::Bullet(); ImGui::Text("Comma: Send to back");
+	ImGui::Bullet(); ImGui::Text("Period: Send to front");
+	ImGui::Unindent();
+
+	ImGui::Bullet(); ImGui::Text("Trackpad helpers");
+	ImGui::Indent(); 
+	ImGui::Bullet(); ImGui::Text("+/-: Zoom");
+	ImGui::Bullet(); ImGui::Text("Left Control + Mouse Drag: Pan camera");
+	ImGui::Bullet(); ImGui::Text("Arrow Keys: Pan camera");
+	ImGui::Unindent();
+
+	ImGui::Bullet(); ImGui::Text("Debug (!)");
+	ImGui::Indent();
+	ImGui::Bullet(); ImGui::Text("Backslash: Dump undo buffer to console");
+	ImGui::Bullet(); ImGui::Text("Right Bracket: Clear undo buffer");
+	ImGui::Unindent();
+
 	ImGui::End();
 }
 
