@@ -1,0 +1,7 @@
+[
+    {
+        "command": "c++ -c -std=c++11 -Iinclude -o build/engine.o engine.cpp",
+        "directory": "/home/vkvd/Development/polyedit",
+        "file": "/home/vkvd/Development/polyedit/engine.cpp"
+    }
+]

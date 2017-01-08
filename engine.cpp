@@ -8,7 +8,8 @@
 #include "imgui/imconfig.h"
 #include "imgui-backends/SFML/imgui-events-SFML.h"
 #include "imgui-backends/SFML/imgui-rendering-SFML.h"
-#include "imgui/imguicolorpicker.h"
+#include "imgui/imguicolorpicker.h" 
+#include <cmath>
 
 // Fixes for windows
 #ifdef _WIN32
@@ -114,8 +115,8 @@ void Engine::run() {
 			ImGui::SFML::UpdateImGui();
 			ImGui::SFML::UpdateImGuiRendering();
 
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
-			ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8,8));
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0);
+			//ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(8,8));
 			
 			ImGuiStyle& style = ImGui::GetStyle();
 			style.Colors[ImGuiCol_TitleBg] = ImVec4(0.39f, 0.39f, 0.39f, 0.75f);
@@ -130,6 +131,8 @@ void Engine::run() {
 
 			style.ScrollbarRounding = 0.0f;
 			style.ScrollbarSize = 20.0f;
+			style.WindowRounding = 0.0f;
+			style.WindowPadding = ImVec2(0.0f,0.0f);
 
 			if (showColorPickerGUI){
 				createColorPickerGUI();
