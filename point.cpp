@@ -21,10 +21,7 @@ Point::~Point()
 
 void Point::updateCShape(float zoom){
 	cshape.setRadius(size*zoom);
-	sf::Vector2f pos = vector;
-	pos.x -= size*zoom;
-	pos.y -= size*zoom;
-	cshape.setPosition(pos);
+	cshape.setPosition(sf::Vector2f(vector.x-(size*zoom), vector.y-(size*zoom)));
 	cshape.setFillColor(sf::Color::Transparent);
 	selected ? cshape.setOutlineColor(colorSelected) : cshape.setOutlineColor(colorIdle);
 	cshape.setOutlineThickness(-1.5*zoom);
